@@ -1,0 +1,14 @@
+menu "CQNU AI Badge"
+    config CQ_SERVER_URL
+        string "同步电脑地址（可留空，工牌会在局域网里自动找）"
+        default ""
+    config CQ_BADGE_KEY
+        string "工牌访问密钥，写在 sdkconfig.secrets 里，不要提交"
+        default ""
+    config CQ_WIFI_SSID
+        string "内置 Wi-Fi 名称（可留空；也可以在后台【Wi-Fi】表下发或用手机配网）"
+        default ""
+    config CQ_WIFI_PASS
+        string "内置 Wi-Fi 密码"
+        default ""
+endmenu

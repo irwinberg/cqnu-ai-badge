@@ -1,0 +1,23 @@
+{
+  "base_token": "飞书多维表格的 base token",
+  "badge_key": "工牌访问密钥，和固件 sdkconfig.secrets 里的 CONFIG_CQ_BADGE_KEY 一致",
+  "push_key": "课堂口令（老师推送用）",
+  "admin_key": "管理页口令",
+  "bind": "127.0.0.1",
+  "port": 8787,
+  "discovery": false,
+  "discovery_port": 8788,
+  "public_base": "http://你的服务器地址",
+  "lark_cli": "/home/ubuntu/.npm-global/bin/lark-cli",
+  "lark_as": "bot",
+  "refresh_seconds": 30,
+  "points_html": "/var/www/cqnu/points/index.html",
+  "db": "/opt/cqnu/data/data.db",
+  "forms": {
+    "交作业": "飞书表单分享链接",
+    "参赛报名": "飞书表单分享链接",
+    "评委打分": "飞书表单分享链接",
+    "投票": "飞书表单分享链接",
+    "工牌登记": "飞书表单分享链接"
+  }
+}

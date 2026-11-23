@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf9f6">
+<title>我的消息 · AI 工牌</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#faf9f6;--card:#fff;--ink:#202a30;--ink3:#59656b;--mute:#657176;--line:#dfe4e1;--soft:#eef1ef;--ac:#176b75;--ac-soft:#e7f0f0;--amber:#7c5a24;--red:#a8432f;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:560px;margin:0 auto;padding:22px 16px 60px}
+h1{font-size:24px;font-weight:700;letter-spacing:.5px}
+.sub{color:var(--mute);font-size:15px;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:16px}
+.card h2{font-size:18px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+.card h2 small{font-size:13px;color:var(--mute);font-weight:400}
+.msg{padding:10px 0;border-top:1px solid var(--soft)}
+.msg:first-of-type{border-top:0}
+.msg .t{font-weight:600}
+.msg .m{font-size:13px;color:var(--mute);font-family:var(--mono)}
+.tag{display:inline-block;font-size:12px;padding:0 8px;border-radius:99px;margin-right:6px;vertical-align:2px}
+.k-class{background:#f3ebdd;color:var(--amber)} .k-chat{background:var(--ac-soft);color:var(--ac)} .k-mine{background:var(--soft);color:var(--ink3)}
+label{display:block;font-size:15px;color:var(--ink3);margin:10px 0 4px}
+select,input,textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{height:84px;resize:none}
+.btn{display:block;width:100%;margin-top:12px;padding:12px;border-radius:99px;border:0;background:var(--ac);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.btn.line{background:#fff;color:var(--ac);border:1px solid var(--ac)}
+.row{display:flex;gap:10px;align-items:center}
+.row > *{flex:1}
+.switch{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+.switch input{width:auto;transform:scale(1.4)}
+.tip{font-size:14px;color:var(--mute);margin-top:8px}
+.note{font-size:14px;margin-top:8px;min-height:20px}
+.ok{color:var(--ac)} .err{color:var(--red)}
+details summary{cursor:pointer;color:var(--ac);font-size:15px}
+pre{font:13px/1.5 var(--mono);background:var(--soft);border-radius:8px;padding:10px;margin-top:8px;white-space:pre-wrap;word-break:break-all}
+.empty{color:var(--mute);font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="who">我的消息</h1>
+  <div class="sub" id="whosub">AI 工牌 · 收消息、发消息、每天提醒</div>
+
+  <div class="card">
+    <h2>收到的消息 <small id="cnt"></small></h2>
+    <div id="inbox"><div class="empty">加载中…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>给同学发消息</h2>
+    <label for="to">发给谁</label>
+    <select id="to"></select>
+    <label for="text">说什么（最多 40 个字，会显示在对方工牌上）</label>
+    <textarea id="text" maxlength="40" placeholder="比如：下午三点会议室见"></textarea>
+    <button class="btn" id="send">发送</button>
+    <div class="note" id="sendnote"></div>
+    <div class="tip">每人每天最多发 30 条。消息老师都能看到，请文明发言。</div>
+  </div>
+
+  <div class="card">
+    <h2>每天积分提醒</h2>
+    <div class="switch"><span>每天提醒我领 AI 免费积分</span><input type="checkbox" id="pon"></div>
+    <div class="row"><label for="ptime" style="margin:0">提醒时间</label><input type="time" id="ptime" value="09:00"></div>
+    <button class="btn line" id="psave">保存</button>
+    <div class="note" id="pnote"></div>
+    <div class="tip">到点工牌会响一声，显示今天能领哪些积分。<a id="plink" href="/points/">打开积分提醒站</a></div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>给 WorkBuddy 用：让程序给我的工牌发提醒</summary>
+      <div class="tip">把下面这段发给 WorkBuddy，说“每天 X 点用这个命令给我的工牌发一条提醒”。这个地址只能发给你自己的工牌，不要发给别人。</div>
+      <pre id="api"></pre>
+    </details>
+  </div>
+</div>
+<script>
+var token = location.pathname.split("/").filter(Boolean).pop();
+var base = location.origin;
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function when(t) { var d = new Date(t * 1000), n = new Date(); var hm = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); return d.toDateString() === n.toDateString() ? "今天 " + hm : (d.getMonth() + 1) + "月" + d.getDate() + "日 " + hm; }
+var KIND = { "class": "课堂", "chat": "同学", "mine": "提醒" };
+function api(path, body) {
+  return fetch(base + path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {})
+    .then(function (r) { return r.json(); });
+}
+function load() {
+  api("/api/v1/me?token=" + encodeURIComponent(token)).then(function (d) {
+    if (d.err) { $("who").textContent = "链接无效"; $("whosub").textContent = d.err; return; }
+    $("who").textContent = (d.name || "我") + " 的消息";
+    $("whosub").textContent = "工牌码 " + d.code + (d.org ? " · " + d.org : "");
+    $("cnt").textContent = d.inbox.length ? "最近 " + d.inbox.length + " 条" : "";
+    $("inbox").innerHTML = d.inbox.length ? d.inbox.map(function (m) {
+      return '<div class="msg"><div class="t"><span class="tag k-' + m.k + '">' + KIND[m.k] + "</span>" + esc(m.title) + '</div><div>' + esc(m.text) + '</div><div class="m">' + when(m.at) + "</div></div>";
+    }).join("") : '<div class="empty">还没有消息</div>';
+    var sel = $("to"), keep = sel.value;
+    sel.innerHTML = '<option value="">请选择</option>' + d.people.map(function (p) { return '<option value="' + p.code + '">' + esc(p.name) + (p.org ? "（" + esc(p.org) + "）" : "") + "</option>"; }).join("");
+    if (keep) sel.value = keep;
+    $("pon").checked = d.sub.on; $("ptime").value = d.sub.time;
+    $("api").textContent = 'curl -X POST ' + base + '/api/v1/remind -H "Content-Type: application/json" -d \'{"token":"' + token + '","title":"标题（16字内）","text":"内容（40字内）"}\'';
+  }).catch(function () { $("whosub").textContent = "连不上服务器，稍后刷新"; });
+}
+$("send").onclick = function () {
+  var to = $("to").value, text = $("text").value.trim(), n = $("sendnote");
+  if (!to) { n.className = "note err"; n.textContent = "先选一位同学"; return; }
+  if (!text) { n.className = "note err"; n.textContent = "写点内容再发"; return; }
+  api("/api/v1/send", { token: token, to: to, text: text }).then(function (d) {
+    n.className = "note " + (d.ok ? "ok" : "err");
+    n.textContent = d.ok ? "发出去了，对方工牌一两秒内就能收到" : (d.err || "没发出去");
+    if (d.ok) $("text").value = "";
+  });
+};
+$("psave").onclick = function () {
+  api("/api/v1/points", { token: token, on: $("pon").checked, time: $("ptime").value }).then(function (d) {
+    var n = $("pnote"); n.className = "note " + (d.ok ? "ok" : "err");
+    n.textContent = d.ok ? (d.sub.on ? "好了，每天 " + d.sub.time + " 工牌会提醒你" : "已关闭每天提醒") : (d.err || "没保存成功");
+  });
+};
+load();
+setInterval(load, 20000);
+</script>
+</body>
+</html>
