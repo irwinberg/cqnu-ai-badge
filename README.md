@@ -7,14 +7,17 @@
 | [`firmware/`](firmware/) | 工牌固件（基于 FoloToy 开源的 [ai-passport](https://gitee.com/FoloToy/ai-passport)，ESP-IDF 5.5 + LVGL 9） |
 | [`server/`](server/) | 同步服务和消息中心：读飞书多维表格，给每张工牌返回它要显示的内容；收发消息；“我的消息”网页 |
 | [`flash-kit/`](flash-kit/) | WorkBuddy 刷机技能：一步一步带学员刷机、连 Wi-Fi、扫码登记 |
-
-积分提醒站是单独的仓库：[points-reminder](https://github.com/irwinberg/points-reminder)（它要能直接装成 WorkBuddy 技能，所以不放在这里）。
+| [`points-reminder/`](points-reminder/) | 积分提醒站：每天提醒领 AI 免费积分（网页 + WorkBuddy 技能），可推送到自己的工牌；在线版 http://118.24.193.151/points/ |
 
 ## 学员：刷机
 
-到 [Releases](../../releases) 下载对应系统的 `cqnu-badge-mac.zip` 或 `cqnu-badge-windows.zip`，解压后放进 WorkBuddy 的技能目录（`~/.workbuddy/skills/`），然后对 WorkBuddy 说“帮我配置 AI 工牌”。详细步骤见 [`flash-kit/先看我.md`](flash-kit/先看我.md)。
+到 Releases（国内用 [Gitee](https://gitee.com/fulingsimin/cqnu-ai-badge/releases)，海外用 [GitHub](https://github.com/irwinberg/cqnu-ai-badge/releases)）下载对应系统的 `cqnu-badge-mac.zip` 或 `cqnu-badge-windows.zip`，解压后放进 WorkBuddy 的技能目录（`~/.workbuddy/skills/`），然后对 WorkBuddy 说“帮我配置 AI 工牌”。详细步骤见 [`flash-kit/先看我.md`](flash-kit/先看我.md)。
 
 想自己加功能：只改 [`firmware/main/my_feature.c`](firmware/main/my_feature.c)，说明在同目录的 `my_feature.h`。
+
+## 学员：积分提醒
+
+下载 Releases 里的 `points-reminder.zip`，解压后把 `points-reminder` 文件夹放进 WorkBuddy 技能目录，说“做我自己的积分提醒站”或“提醒我每天领积分”。说明见 [`points-reminder/README.md`](points-reminder/README.md)。
 
 ## 老师：日常维护（全部在飞书多维表格里）
 
